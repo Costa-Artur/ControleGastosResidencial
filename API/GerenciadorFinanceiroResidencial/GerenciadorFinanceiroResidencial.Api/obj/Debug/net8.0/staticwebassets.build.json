@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "Hash": "ByeyRz0aazunXfzZ3sKiWed3FGVuWPwRNLVtLlhSgJg=",
+  "Source": "GerenciadorFinanceiroResidencial.Api",
+  "BasePath": "_content/GerenciadorFinanceiroResidencial.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": []
+}

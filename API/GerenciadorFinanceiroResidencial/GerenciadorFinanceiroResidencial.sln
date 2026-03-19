@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GerenciadorFinanceiroResidencial.Api", "GerenciadorFinanceiroResidencial.Api\GerenciadorFinanceiroResidencial.Api.csproj", "{4EB137FB-5B8F-4434-AC57-AFCD62709C05}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{23B48F2C-FBE4-41B1-A237-8F29C9AD53D7}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GerenciadorFinanceiroResidencial.Application", "GerenciadorFinanceiroResidencial.Application\GerenciadorFinanceiroResidencial.Application.csproj", "{E56C91EC-3948-4182-AAB2-CB0C19DD39DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GerenciadorFinanceiroResidencial.Domain", "GerenciadorFinanceiroResidencial.Domain\GerenciadorFinanceiroResidencial.Domain.csproj", "{EFD13EB7-D881-4F10-83EF-953303AB6AA5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GerenciadorFinanceiroResidencial.Persistence", "GerenciadorFinanceiroResidencial.Persistence\GerenciadorFinanceiroResidencial.Persistence.csproj", "{B94BF7E2-24A0-4796-8BEE-F1C908B30531}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{6AA52F81-482E-472A-A68A-945EBEE6985B}"
+	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{4EB137FB-5B8F-4434-AC57-AFCD62709C05}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4EB137FB-5B8F-4434-AC57-AFCD62709C05}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4EB137FB-5B8F-4434-AC57-AFCD62709C05}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4EB137FB-5B8F-4434-AC57-AFCD62709C05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E56C91EC-3948-4182-AAB2-CB0C19DD39DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E56C91EC-3948-4182-AAB2-CB0C19DD39DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E56C91EC-3948-4182-AAB2-CB0C19DD39DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E56C91EC-3948-4182-AAB2-CB0C19DD39DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EFD13EB7-D881-4F10-83EF-953303AB6AA5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EFD13EB7-D881-4F10-83EF-953303AB6AA5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EFD13EB7-D881-4F10-83EF-953303AB6AA5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EFD13EB7-D881-4F10-83EF-953303AB6AA5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B94BF7E2-24A0-4796-8BEE-F1C908B30531}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B94BF7E2-24A0-4796-8BEE-F1C908B30531}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B94BF7E2-24A0-4796-8BEE-F1C908B30531}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B94BF7E2-24A0-4796-8BEE-F1C908B30531}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4EB137FB-5B8F-4434-AC57-AFCD62709C05} = {23B48F2C-FBE4-41B1-A237-8F29C9AD53D7}
+		{E56C91EC-3948-4182-AAB2-CB0C19DD39DA} = {23B48F2C-FBE4-41B1-A237-8F29C9AD53D7}
+		{EFD13EB7-D881-4F10-83EF-953303AB6AA5} = {23B48F2C-FBE4-41B1-A237-8F29C9AD53D7}
+		{B94BF7E2-24A0-4796-8BEE-F1C908B30531} = {23B48F2C-FBE4-41B1-A237-8F29C9AD53D7}
+	EndGlobalSection
+EndGlobal
