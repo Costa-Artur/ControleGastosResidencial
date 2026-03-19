@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using AutoMapper;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands;
+using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands.UpdatePerson;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsDetail;
 using GerenciadorFinanceiroResidencial.Application.Models;
 using MediatR;
@@ -50,5 +51,20 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
         return Created(
             $"/api/persons/{createPersonCommandResponse.Person.Id}",
             createPersonCommandResponse.Person);
+    }
+
+    [HttpPut("{personId}")]
+    public async Task<ActionResult> UpdatePerson(Guid personId, [FromBody] PersonForUpdateDto personForUpdateDto)
+    {
+        var updatePersonCommand = mapper.Map<UpdatePersonCommand>(personForUpdateDto);
+        
+        var updatePersonCommandResponse = await mediator.Send(updatePersonCommand);
+        
+        if(!updatePersonCommandResponse.IsSuccess)
+        {
+            return CheckStatusCode(updatePersonCommandResponse);
+        }
+        
+        return NoContent();
     }
 }

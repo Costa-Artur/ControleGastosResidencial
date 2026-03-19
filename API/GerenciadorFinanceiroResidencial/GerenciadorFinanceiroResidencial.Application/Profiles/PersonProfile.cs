@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands;
+using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands.UpdatePerson;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsDetail;
 using GerenciadorFinanceiroResidencial.Application.Models;
 using GerenciadorFinanceiroResidencial.Domain.Entities;
@@ -14,6 +15,8 @@ public class PersonProfile : Profile
         CreateMap<Person, CreatePersonDto>();
         CreateMap<Person, GetPersonsDetailDto>();
         CreateMap<CreatePersonCommand, Person>().ReverseMap();
+        CreateMap<UpdatePersonCommand, Person>().ReverseMap();
         CreateMap<PersonForCreationDto, CreatePersonCommand>();
+        CreateMap<PersonForUpdateDto, UpdatePersonCommand>();
     }
 }

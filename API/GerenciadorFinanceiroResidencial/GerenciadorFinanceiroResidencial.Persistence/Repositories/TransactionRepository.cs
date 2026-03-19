@@ -34,4 +34,14 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
         
         return (personsToReturn, paginationMetadata);
     }
+    
+    public async Task<bool> PersonExistsAsync(Guid id)
+    {
+        return await context.Persons.AnyAsync(p => p.Id == id);
+    }
+
+    public async Task<Person?> GetPersonByIdAsync(Guid id)
+    {
+        return await context.Persons.FirstOrDefaultAsync(p => p.Id == id);
+    }
 }
