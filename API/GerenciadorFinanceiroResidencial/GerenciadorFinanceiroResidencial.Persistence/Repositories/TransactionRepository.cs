@@ -151,4 +151,28 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
     {
         return await context.Categories.FirstOrDefaultAsync(c => c.Id == id);
     }
+
+    public async Task<bool> DeletePersonAndTransactionsAsync(Guid personId)
+    {
+        var person = await context.Persons.FirstOrDefaultAsync(p => p.Id == personId);
+
+        if (person == null)
+        {
+            return false;
+        }
+
+        var transactions = await context.Transactions
+            .Where(t => t.PersonId == personId)
+            .ToListAsync();
+
+        if (transactions.Count > 0)
+        {
+            context.Transactions.RemoveRange(transactions);
+        }
+
+        context.Persons.Remove(person);
+
+        await context.SaveChangesAsync();
+        return true;
+    }
 }

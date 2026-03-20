@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using AutoMapper;
+using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands.DeletePerson;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands.UpdatePerson;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsDetail;
@@ -141,6 +142,26 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
             return CheckStatusCode(updatePersonCommandResponse);
         }
         
+        return NoContent();
+    }
+
+    /// <summary>
+    /// Deleta uma pessoa e todas as transações vinculadas a ela.
+    /// </summary>
+    /// <param name="personId">Identificador único da pessoa a ser removida.</param>
+    /// <response code="204">Pessoa e transações removidas.</response>
+    /// <response code="404">Pessoa não encontrada.</response>
+    /// <response code="422">Erro de validação nos dados enviados.</response>
+    [HttpDelete("{personId}")]
+    public async Task<ActionResult> DeletePerson(Guid personId)
+    {
+        var response = await mediator.Send(new DeletePersonCommand { PersonId = personId });
+
+        if (!response.IsSuccess)
+        {
+            return CheckStatusCode(response);
+        }
+
         return NoContent();
     }
 }

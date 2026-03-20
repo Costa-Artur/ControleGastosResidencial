@@ -17,6 +17,7 @@ public interface ITransactionRepository
     Task<bool> PersonExistsAsync(Guid id);
     Task<Person?> GetPersonByIdAsync(Guid id);
     Task<Category?> GetCategoryByIdAsync(Guid id);
+    Task<bool> DeletePersonAndTransactionsAsync(Guid personId);
 
     Task<bool> SaveChangesAsync();
 }
