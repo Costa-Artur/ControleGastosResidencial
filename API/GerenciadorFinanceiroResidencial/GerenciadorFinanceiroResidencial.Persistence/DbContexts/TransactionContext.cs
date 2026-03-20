@@ -8,6 +8,7 @@ public class TransactionContext(DbContextOptions<TransactionContext> options) : 
 {
     public DbSet<Person> Persons { get; set; } = null!;
     public DbSet<Category> Categories { get; set; } = null!;
+    public DbSet<Transaction>  Transactions { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

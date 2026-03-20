@@ -10,6 +10,7 @@ public interface ITransactionRepository
     void AddCategory(Category category);
     Task<(IEnumerable<Person>, PaginationMetadata)> GetAllPersonsAsync(int pageNumber, int pageSize);
     Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize);
+    Task<(IEnumerable<Transaction>, PaginationMetadata)> GetAllTransactionsAsync(int pageNumber, int pageSize);
     Task<bool> PersonExistsAsync(Guid id);
     Task<Person?> GetPersonByIdAsync(Guid id);
 

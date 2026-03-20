@@ -56,7 +56,26 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
         
         return (categories, paginationMetadata);
     }
-    
+
+    public async Task<(IEnumerable<Transaction>, PaginationMetadata)> GetAllTransactionsAsync(int pageNumber, int pageSize)
+    {
+        var collection  = context.Transactions.OrderBy(t => t.Id).AsQueryable();
+        
+        var totalItemCount  = collection.Count();
+        
+        var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+        
+        var transactions = await collection
+            .OrderBy(t => t.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .Include(t => t.Category)
+            .Include(t => t.Person)
+            .ToListAsync();
+        
+        return (transactions, paginationMetadata);
+    }
+
     public async Task<bool> PersonExistsAsync(Guid id)
     {
         return await context.Persons.AnyAsync(p => p.Id == id);

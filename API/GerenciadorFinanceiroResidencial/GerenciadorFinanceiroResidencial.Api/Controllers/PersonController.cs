@@ -42,7 +42,7 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
     /// <summary>
     /// Cria uma nova pessoa.
     /// </summary>
-    /// <param name="personForCreationDto">Dados da categoria a ser criada.</param>
+    /// <param name="personForCreationDto">Dados da pessoa a ser criada.</param>
     /// <returns>Categoria criada com sucesso.</returns>
     /// <response code="201">Pessoa criada.</response>
     /// <response code="422">Erro de validação nos dados enviados.</response>

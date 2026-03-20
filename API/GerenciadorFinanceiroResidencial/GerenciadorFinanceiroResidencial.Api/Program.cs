@@ -1,7 +1,6 @@
 using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
-using GerenciadorFinanceiroResidencial;
 using GerenciadorFinanceiroResidencial.Application;
 using GerenciadorFinanceiroResidencial.Extensions;
 using GerenciadorFinanceiroResidencial.Persistence;
@@ -13,7 +12,6 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAutoMapper(_ => {}, AppDomain.CurrentDomain.GetAssemblies());
-builder.Services.AddSingleton<Data>();
 builder.Services.AddControllers()
     .AddJsonOptions(opt =>
     {
