@@ -1,6 +1,8 @@
 ﻿using GerenciadorFinanceiroResidencial.Application.Contracts;
 using GerenciadorFinanceiroResidencial.Application.Features.Common;
 using GerenciadorFinanceiroResidencial.Domain.Entities;
+using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsFinancialSummary;
+using GerenciadorFinanceiroResidencial.Domain.Enums;
 using GerenciadorFinanceiroResidencial.Persistence.DbContexts;
 using Microsoft.EntityFrameworkCore;
 
@@ -17,7 +19,12 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
     {
         context.Categories.Add(category);
     }
-    
+
+    public void AddTransaction(Transaction transaction)
+    {
+        context.Transactions.Add(transaction);
+    }
+
     public  async Task<bool> SaveChangesAsync()
     {
         return await context.SaveChangesAsync() > 0;
@@ -38,6 +45,60 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
             .ToListAsync();
         
         return (personsToReturn, paginationMetadata);
+    }
+
+    public async Task<(IEnumerable<PersonFinancialSummaryDto> Persons, PersonsFinancialSummaryTotalDto Totals, PaginationMetadata PaginationMetadata)> GetPersonsFinancialSummaryAsync(int pageNumber, int pageSize)
+    {
+        var baseQuery = context.Persons
+            .AsNoTracking()
+            .GroupJoin(
+                context.Transactions.AsNoTracking(),
+                person => person.Id,
+                transaction => transaction.PersonId,
+                (person, transactions) => new PersonFinancialSummaryDto
+                {
+                    Id = person.Id,
+                    Name = person.Name,
+                    Age = person.Age,
+                    TotalIncome = transactions
+                        .Where(transaction => transaction.TransactionType == TransactionType.Receita)
+                        .Sum(transaction => (decimal?)transaction.Amount) ?? 0m,
+                    TotalExpense = transactions
+                        .Where(transaction => transaction.TransactionType == TransactionType.Despesa)
+                        .Sum(transaction => (decimal?)transaction.Amount) ?? 0m
+                });
+
+        var totalItemCount = await baseQuery.CountAsync();
+        var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+
+        var personsSummary = await baseQuery
+            .OrderBy(person => person.Name)
+            .Skip(pageSize * (pageNumber - 1))
+            .Take(pageSize)
+            .ToListAsync();
+
+        foreach (var person in personsSummary)
+        {
+            person.Balance = person.TotalIncome - person.TotalExpense;
+        }
+
+        var totals = await context.Transactions
+            .AsNoTracking()
+            .GroupBy(_ => 1)
+            .Select(group => new PersonsFinancialSummaryTotalDto
+            {
+                TotalIncome = group
+                    .Where(transaction => transaction.TransactionType == TransactionType.Receita)
+                    .Sum(transaction => (decimal?)transaction.Amount) ?? 0m,
+                TotalExpense = group
+                    .Where(transaction => transaction.TransactionType == TransactionType.Despesa)
+                    .Sum(transaction => (decimal?)transaction.Amount) ?? 0m
+            })
+            .FirstOrDefaultAsync() ?? new PersonsFinancialSummaryTotalDto();
+
+        totals.NetBalance = totals.TotalIncome - totals.TotalExpense;
+
+        return (personsSummary, totals, paginationMetadata);
     }
 
     public async Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize)
@@ -84,5 +145,10 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
     public async Task<Person?> GetPersonByIdAsync(Guid id)
     {
         return await context.Persons.FirstOrDefaultAsync(p => p.Id == id);
+    }
+
+    public async Task<Category?> GetCategoryByIdAsync(Guid id)
+    {
+        return await context.Categories.FirstOrDefaultAsync(c => c.Id == id);
     }
 }

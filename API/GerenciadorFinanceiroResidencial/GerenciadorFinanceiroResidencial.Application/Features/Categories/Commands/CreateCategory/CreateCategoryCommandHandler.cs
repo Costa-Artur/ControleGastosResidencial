@@ -15,7 +15,7 @@ public class CreateCategoryCommandHandler(
     public async Task<CreateCategoryCommandResponse> Handle(CreateCategoryCommand request, CancellationToken cancellationToken)
     {
         CreateCategoryCommandResponse createCategoryCommandResponse = new();
-        var validationResult = validator.Validate(request);
+        var validationResult = await validator.ValidateAsync(request, cancellationToken);
         
         if (!validationResult.IsValid)
         {

@@ -3,6 +3,7 @@ using AutoMapper;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Commands.UpdatePerson;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsDetail;
+using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsFinancialSummary;
 using GerenciadorFinanceiroResidencial.Application.Models;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
@@ -38,12 +39,43 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
         
         return Ok(personsResponse.Persons);
     }
+
+    /// <summary>
+    /// Lista o resumo financeiro de todas as pessoas com total geral consolidado.
+    /// </summary>
+    /// <param name="pageNumber">Número da página a ser buscada.</param>
+    /// <param name="pageSize">Tamanho da página a ser buscada.</param>
+    /// <response code="200">Retorna o resumo financeiro por pessoa e o total geral.</response>
+    [HttpGet("financial-summary")]
+    public async Task<ActionResult<PersonsFinancialSummaryDto>> GetPersonsFinancialSummary(int pageNumber = 1, int pageSize = 10)
+    {
+        if (pageSize > maxPageSize) pageSize = maxPageSize;
+
+        var response = await mediator.Send(new GetPersonsFinancialSummaryQuery
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize
+        });
+
+        if (!response.IsSuccess)
+        {
+            return CheckStatusCode(response);
+        }
+
+        Response.Headers.Append("X-Pagination", JsonSerializer.Serialize(response.PaginationMetadata));
+
+        return Ok(new PersonsFinancialSummaryDto
+        {
+            Persons = response.Persons,
+            Totals = response.Totals
+        });
+    }
     
     /// <summary>
     /// Cria uma nova pessoa.
     /// </summary>
     /// <param name="personForCreationDto">Dados da pessoa a ser criada.</param>
-    /// <returns>Categoria criada com sucesso.</returns>
+    /// <returns>Pessoa criada com sucesso.</returns>
     /// <response code="201">Pessoa criada.</response>
     /// <response code="422">Erro de validação nos dados enviados.</response>
     [HttpPost]
@@ -72,6 +104,7 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
     /// <summary>
     /// Atualiza uma pessoa do banco.
     /// </summary>
+    /// <param name="personId">Identificador único da pessoa a ser atualizada.</param>
     /// <param name="personForUpdateDto">Dados da pessoa a ser atualizada.</param>
     /// <returns>Pessoa atualizada com sucesso.</returns>
     /// <response code="204">Pessoa atualizada.</response>
@@ -79,6 +112,11 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
     [HttpPut("{personId}")]
     public async Task<ActionResult> UpdatePerson(Guid personId, [FromBody] PersonForUpdateDto personForUpdateDto)
     {
+        if(personForUpdateDto.Id != personId)
+        {
+            return BadRequest();
+        }
+        
         var updatePersonCommand = mapper.Map<UpdatePersonCommand>(personForUpdateDto);
         
         var updatePersonCommandResponse = await mediator.Send(updatePersonCommand);

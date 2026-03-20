@@ -15,7 +15,7 @@ public class CreateCategoryCommandValidator : AbstractValidator<CreateCategoryCo
 
         RuleFor(c => c.Purpose)
             .NotEmpty()
-            .WithMessage("Purpose deve ser preenchido.")
+            .WithMessage("Finalidade deve ser preenchida.")
             //Verifica se está incluido no enum
             .Must(value => Enum.TryParse<CategoryType>(value, true, out var parsed)
                            && Enum.IsDefined(parsed))
