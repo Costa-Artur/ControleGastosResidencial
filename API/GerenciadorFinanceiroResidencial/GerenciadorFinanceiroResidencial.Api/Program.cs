@@ -88,6 +88,7 @@ app.MapControllers();
 
 app.Run();
 
+//Aplicar migrations ao iniciar docker
 static async Task ApplyMigrationsWithRetryAsync(WebApplication app)
 {
     using var scope = app.Services.CreateScope();
