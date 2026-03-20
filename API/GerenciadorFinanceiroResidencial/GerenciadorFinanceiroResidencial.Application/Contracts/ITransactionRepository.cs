@@ -7,7 +7,9 @@ namespace GerenciadorFinanceiroResidencial.Application.Contracts;
 public interface ITransactionRepository
 {
     void AddPerson(Person person);
+    void AddCategory(Category category);
     Task<(IEnumerable<Person>, PaginationMetadata)> GetAllPersonsAsync(int pageNumber, int pageSize);
+    Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize);
     Task<bool> PersonExistsAsync(Guid id);
     Task<Person?> GetPersonByIdAsync(Guid id);
 

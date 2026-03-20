@@ -12,6 +12,11 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
     {
         context.Persons.Add(person);
     }
+
+    public void AddCategory(Category category)
+    {
+        context.Categories.Add(category);
+    }
     
     public  async Task<bool> SaveChangesAsync()
     {
@@ -33,6 +38,23 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
             .ToListAsync();
         
         return (personsToReturn, paginationMetadata);
+    }
+
+    public async Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize)
+    {
+        var collection = context.Categories.OrderBy(c => c.Id).AsQueryable();
+        
+        var totalItemCount = await collection.CountAsync();
+        
+        var paginationMetadata = new PaginationMetadata(totalItemCount, pageSize, pageNumber);
+        
+        var categories = await collection
+            .OrderBy(c => c.Id)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+        
+        return (categories, paginationMetadata);
     }
     
     public async Task<bool> PersonExistsAsync(Guid id)

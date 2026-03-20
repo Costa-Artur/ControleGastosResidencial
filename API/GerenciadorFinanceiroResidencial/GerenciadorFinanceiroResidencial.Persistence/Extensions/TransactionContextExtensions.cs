@@ -31,5 +31,21 @@ internal static class TransactionContextExtensions
                     Age = 21
                 }
             );
+
+        modelBuilder.Entity<Category>()
+            .HasData(
+                new Category()
+                {
+                    Id = Guid.NewGuid(),
+                    Description = "Salário",
+                    Purpose = Domain.Enums.CategoryType.Income
+                },
+                new Category()
+                {
+                    Id = Guid.NewGuid(),
+                    Description = "Aluguel",
+                    Purpose = Domain.Enums.CategoryType.Expense
+                }
+            );
     }
 }

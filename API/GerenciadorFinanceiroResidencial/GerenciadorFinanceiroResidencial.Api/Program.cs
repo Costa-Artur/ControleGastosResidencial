@@ -1,4 +1,5 @@
-
+using System.Reflection;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using GerenciadorFinanceiroResidencial;
 using GerenciadorFinanceiroResidencial.Application;
@@ -15,7 +16,11 @@ builder.Services.AddAutoMapper(_ => {}, AppDomain.CurrentDomain.GetAssemblies())
 builder.Services.AddSingleton<Data>();
 builder.Services.AddControllers()
     .AddJsonOptions(opt =>
-        opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles)
+    {
+        opt.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+        opt.JsonSerializerOptions.Converters.Add(
+            new JsonStringEnumConverter((JsonNamingPolicy?)null, allowIntegerValues: false));
+    })
     .ConfigureApiBehaviorOptions(setupAction =>
     {
         setupAction.SuppressModelStateInvalidFilter = true;
@@ -39,7 +44,7 @@ builder.Services.AddControllers()
 
             // Relata respostas do estado de modelo inválido como problemas de validação
             validationProblemDetails.Type =
-                "https://courseunivali.com/modelvalidationproblem";
+                "https://gerenciadorfinanceiro.com/modelvalidationproblem";
             validationProblemDetails.Status =
                 StatusCodes.Status422UnprocessableEntity;
             validationProblemDetails.Title =
@@ -65,7 +70,19 @@ builder.Services.AddPersistenceServices(connectionString);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    //mostrar enums no swagger
+    options.SchemaFilter<EnumAsStringSchemaFilter>();
+
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+});
 
 var app = builder.Build();
 
