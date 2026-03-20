@@ -49,10 +49,27 @@ public class TransactionController(IMapper mapper, IMediator mediator) : MainCon
     /// <response code="422">Erro de validação nos dados enviados.</response>
     [HttpPost]
     public async Task<ActionResult<CreateTransactionDto>> CreateTransaction(
-        [FromBody] TransactionForCreationDto transactionForCreationDto
+        [FromBody] TransactionForCreationDto? transactionForCreationDto
         )
     {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        if (transactionForCreationDto is null)
+        {
+            ModelState.AddModelError("Transaction", "O corpo da requisição é obrigatório.");
+            return ValidationProblem(ModelState);
+        }
+
         var createTransactionCommand = mapper.Map<CreateTransactionCommand>(transactionForCreationDto);
+
+        if (createTransactionCommand is null)
+        {
+            ModelState.AddModelError("Transaction", "Não foi possível mapear os dados da transação.");
+            return ValidationProblem(ModelState);
+        }
         
         var createTransactionCommandResponse = await mediator.Send(createTransactionCommand);
 

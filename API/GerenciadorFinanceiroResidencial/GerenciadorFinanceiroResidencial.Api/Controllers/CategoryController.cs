@@ -23,8 +23,25 @@ public class CategoryController(IMapper mapper, IMediator mediator) : MainContro
         [FromBody] CategoryForCreationDto? categoryforCreationDto
     )
     {
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        if (categoryforCreationDto is null)
+        {
+            ModelState.AddModelError("Category", "O corpo da requisição é obrigatório.");
+            return ValidationProblem(ModelState);
+        }
+
         //Cria o command
         var createCategoryCommand = mapper.Map<CreateCategoryCommand>(categoryforCreationDto);
+
+        if (createCategoryCommand is null)
+        {
+            ModelState.AddModelError("Category", "Não foi possível mapear os dados da categoria.");
+            return ValidationProblem(ModelState);
+        }
         
         //Aguarda a resposta
         var createCategoryResponse = await mediator.Send(createCategoryCommand);

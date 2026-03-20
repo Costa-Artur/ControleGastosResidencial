@@ -80,11 +80,26 @@ public class PersonController(IMapper mapper, IMediator mediator) : MainControll
     /// <response code="422">Erro de validação nos dados enviados.</response>
     [HttpPost]
     public async Task<ActionResult<PersonDto>> CreatePerson(
-        [FromBody] PersonForCreationDto personForCreationDto
+        [FromBody] PersonForCreationDto? personForCreationDto
     )
     {
-        //Cria o command
-        var createPersonCommand = mapper.Map<CreatePersonCommand>(personForCreationDto);
+        if (!ModelState.IsValid)
+        {
+            return ValidationProblem(ModelState);
+        }
+
+        if (personForCreationDto is null)
+        {
+            ModelState.AddModelError("Person", "O corpo da requisição é obrigatório.");
+            return ValidationProblem(ModelState);
+        }
+
+        // Cria o command manualmente para garantir request não nulo no MediatR.
+        var createPersonCommand = new CreatePersonCommand
+        {
+            Name = personForCreationDto.Name,
+            Age = personForCreationDto.Age
+        };
         
         //Aguarda a resposta
         var createPersonCommandResponse = await mediator.Send(createPersonCommand);
