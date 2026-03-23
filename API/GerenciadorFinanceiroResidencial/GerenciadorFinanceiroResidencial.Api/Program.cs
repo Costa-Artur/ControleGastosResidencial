@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
+var  MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddAutoMapper(_ => {}, AppDomain.CurrentDomain.GetAssemblies());
@@ -58,6 +59,17 @@ builder.Services.AddControllers()
 
 builder.Services.AddApplicationServices();
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+        policy  =>
+        {
+            policy.WithOrigins("http://localhost:3000");
+            policy.AllowAnyHeader();
+            policy.AllowAnyMethod();
+        });
+});
+
 builder.AddFluentValidationServices();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") 
@@ -96,6 +108,8 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseRouting();
+
+app.UseCors(MyAllowSpecificOrigins);
 
 app.UseAuthorization();
 
