@@ -1,4 +1,4 @@
-import { PaginationMetadataModel, PersonModel, PersonPaginatedResultModel, PersonsTotalsModel, PersonWithTotalsModel } from "@//models/person/person-model";
+import { PaginationMetadataModel, PersonListPaginatedResultModel, PersonModel, PersonPaginatedResultModel, PersonsTotalsModel, PersonWithTotalsModel } from "@//models/person/person-model";
 import { PersonRepository } from "./person-repository";
 
 export class JsonPersonRepository implements PersonRepository {
@@ -27,6 +27,35 @@ export class JsonPersonRepository implements PersonRepository {
         return {
             persons,
             totals,
+            pagination,
+        };
+    }
+
+    async getAllList(pageNumber: number, pageSize: number, searchTerm?: string): Promise<PersonListPaginatedResultModel> {
+        const url = new URL(this.personsBaseUrl);
+        url.searchParams.set("pageNumber", String(pageNumber));
+        url.searchParams.set("pageSize", String(pageSize));
+
+        if (searchTerm && searchTerm.trim().length > 0) {
+            const normalizedSearch = searchTerm.trim();
+            url.searchParams.set("search", normalizedSearch);
+            url.searchParams.set("name", normalizedSearch);
+        }
+
+        const response = await fetch(url.toString());
+
+        if (!response.ok) {
+            throw new Error(`Erro ao buscar pessoas: ${response.status}`);
+        }
+
+        const payload = await response.json() as unknown;
+        const persons = this.extractPersonList(payload);
+
+        const paginationHeader = response.headers.get("X-Pagination");
+        const pagination = this.parsePaginationHeader(paginationHeader, pageNumber, pageSize, persons.length);
+
+        return {
+            persons,
             pagination,
         };
     }
@@ -84,8 +113,14 @@ export class JsonPersonRepository implements PersonRepository {
             age: person.age,
         };
     }
-    delete(id: string): Promise<void> {
-        throw new Error("Method not implemented.");
+    async delete(id: string): Promise<void> {
+        const response = await fetch(`${this.personsBaseUrl}/${id}`, {
+            method: "DELETE",
+        });
+
+        if (!response.ok) {
+            throw new Error(`Erro ao remover pessoa: ${response.status}`);
+        }
     }
 
     private parsePaginationHeader(
@@ -133,6 +168,23 @@ export class JsonPersonRepository implements PersonRepository {
 
             if (Array.isArray(persons)) {
                 return persons as PersonWithTotalsModel[];
+            }
+        }
+
+        return [];
+    }
+
+    private extractPersonList(payload: unknown): PersonModel[] {
+        if (Array.isArray(payload)) {
+            return payload as PersonModel[];
+        }
+
+        if (payload && typeof payload === "object") {
+            const recordPayload = payload as Record<string, unknown>;
+            const persons = recordPayload.persons ?? recordPayload.Persons;
+
+            if (Array.isArray(persons)) {
+                return persons as PersonModel[];
             }
         }
 

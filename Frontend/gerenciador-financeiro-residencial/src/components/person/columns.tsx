@@ -70,7 +70,7 @@ export function getPersonColumns(
                     <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8"
+                        className="h-8 w-8 hover: cursor-pointer"
                         aria-label="Editar pessoa"
                         onClick={() => onEdit(row.original)}
                     >

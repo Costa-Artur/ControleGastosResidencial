@@ -33,3 +33,8 @@ export type PersonPaginatedResultModel = {
     totals: PersonsTotalsModel;
     pagination: PaginationMetadataModel;
 }
+
+export type PersonListPaginatedResultModel = {
+    persons: PersonModel[];
+    pagination: PaginationMetadataModel;
+}

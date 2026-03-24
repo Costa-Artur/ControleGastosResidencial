@@ -2,6 +2,7 @@
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsDetail;
 using GerenciadorFinanceiroResidencial.Application.Features.Persons.Queries.GetPersonsFinancialSummary;
 using GerenciadorFinanceiroResidencial.Domain.Entities;
+using GerenciadorFinanceiroResidencial.Domain.Enums;
 
 namespace GerenciadorFinanceiroResidencial.Application.Contracts;
 
@@ -12,7 +13,7 @@ public interface ITransactionRepository
     void AddTransaction(Transaction transaction);
     Task<(IEnumerable<Person>, PaginationMetadata)> GetAllPersonsAsync(int pageNumber, int pageSize);
     Task<(IEnumerable<PersonFinancialSummaryDto> Persons, PersonsFinancialSummaryTotalDto Totals, PaginationMetadata PaginationMetadata)> GetPersonsFinancialSummaryAsync(int pageNumber, int pageSize);
-    Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize);
+    Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize, CategoryType? purpose);
     Task<(IEnumerable<Transaction>, PaginationMetadata)> GetAllTransactionsAsync(int pageNumber, int pageSize);
     Task<bool> PersonExistsAsync(Guid id);
     Task<Person?> GetPersonByIdAsync(Guid id);

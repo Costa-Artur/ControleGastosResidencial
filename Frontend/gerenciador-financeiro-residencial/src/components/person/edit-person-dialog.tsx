@@ -2,26 +2,19 @@
 
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Button } from "@/components/ui/button";
 import { personRepository } from "@/repositories/person/json-person-repository";
-import { Field, FieldError, FieldGroup, FieldLabel } from "../ui/field";
-import { Input } from "../ui/input";
-import * as z from "zod";
-import { Controller, SubmitHandler, useForm } from "react-hook-form";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PersonWithTotalsModel } from "@/models/person/person-model";
-
-const formSchema = z.object({
-  name: z.string().trim().min(1, "Campo obrigatório").max(200, "O nome deve ter no máximo 200 caracteres"),
-  age: z.coerce
-    .number({ message: "A idade deve ser um número inteiro positivo" })
-    .int("A idade deve ser um número inteiro positivo")
-    .positive("A idade deve ser um número inteiro positivo")
-    .max(150, "A idade deve ser no máximo 150 anos"),
-});
-
-type EditPersonFormInput = z.input<typeof formSchema>;
-type EditPersonFormOutput = z.output<typeof formSchema>;
+import { PersonDialogFields } from "./person-dialog-fields";
+import {
+  personFormDefaultValues,
+  personFormSchema,
+  PersonFormInput,
+  PersonFormOutput,
+} from "./person-dialog.schema";
 
 type EditPersonDialogProps = {
   open: boolean;
@@ -32,22 +25,21 @@ type EditPersonDialogProps = {
 
 export function EditPersonDialog({ open, onOpenChange, person, onUpdated }: EditPersonDialogProps) {
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const form = useForm<EditPersonFormInput, unknown, EditPersonFormOutput>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      age: "",
-    },
+  const form = useForm<PersonFormInput, unknown, PersonFormOutput>({
+    resolver: zodResolver(personFormSchema),
+    defaultValues: personFormDefaultValues,
     mode: "onSubmit",
   });
 
   useEffect(() => {
     if (!open) {
-      form.reset({ name: "", age: "" });
+      form.reset(personFormDefaultValues);
       setError(null);
       setLoading(false);
+      setDeleting(false);
       return;
     }
 
@@ -60,7 +52,7 @@ export function EditPersonDialog({ open, onOpenChange, person, onUpdated }: Edit
     }
   }, [open, person, form]);
 
-  const onSubmit: SubmitHandler<EditPersonFormOutput> = async (data) => {
+  const onSubmit: SubmitHandler<PersonFormOutput> = async (data) => {
     if (!person) {
       return;
     }
@@ -88,6 +80,25 @@ export function EditPersonDialog({ open, onOpenChange, person, onUpdated }: Edit
     }
   };
 
+  const handleDelete = async () => {
+    if (!person) {
+      return;
+    }
+
+    setDeleting(true);
+    setError(null);
+
+    try {
+      await personRepository.delete(person.id);
+      onOpenChange(false);
+      onUpdated?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Erro ao remover pessoa");
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent>
@@ -97,58 +108,11 @@ export function EditPersonDialog({ open, onOpenChange, person, onUpdated }: Edit
         </DialogHeader>
 
         <form className="grid gap-4" id="edit-person-form" onSubmit={form.handleSubmit(onSubmit)}>
-          <FieldGroup>
-            <Controller
-              name="name"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="edit-person-name">Nome <span className="text-destructive">*</span></FieldLabel>
-                  <Input
-                    id="edit-person-name"
-                    type="text"
-                    placeholder="Digite o nome"
-                    value={field.value}
-                    onChange={field.onChange}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                    aria-invalid={fieldState.invalid}
-                    disabled={loading}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-
-            <Controller
-              name="age"
-              control={form.control}
-              render={({ field, fieldState }) => (
-                <Field data-invalid={fieldState.invalid}>
-                  <FieldLabel htmlFor="edit-person-age">Idade <span className="text-destructive">*</span></FieldLabel>
-                  <Input
-                    id="edit-person-age"
-                    type="number"
-                    min={1}
-                    value={typeof field.value === "number" || typeof field.value === "string" ? field.value : ""}
-                    onChange={(event) => field.onChange(event.target.value)}
-                    onBlur={field.onBlur}
-                    name={field.name}
-                    ref={field.ref}
-                    aria-invalid={fieldState.invalid}
-                    placeholder="Ex.: 32"
-                    disabled={loading}
-                  />
-                  {fieldState.invalid && (
-                    <FieldError errors={[fieldState.error]} />
-                  )}
-                </Field>
-              )}
-            />
-          </FieldGroup>
+          <PersonDialogFields
+            form={form}
+            loading={loading}
+            ids={{ name: "edit-person-name", age: "edit-person-age" }}
+          />
         </form>
 
         {error && (
@@ -158,10 +122,53 @@ export function EditPersonDialog({ open, onOpenChange, person, onUpdated }: Edit
         )}
 
         <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={loading}>
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button
+                type="button"
+                variant="destructive"
+                disabled={loading || deleting || !person}
+                className="hover: cursor-pointer mr-auto"
+              >
+                {deleting ? "Excluindo..." : "Excluir"}
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Tem certeza que deseja excluir esta pessoa? Esta ação não pode ser desfeita.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel disabled={deleting}>Cancelar</AlertDialogCancel>
+                <AlertDialogAction
+                  variant="destructive"
+                  disabled={deleting}
+                  onClick={async () => {
+                    await handleDelete();
+                  }}
+                >
+                  {deleting ? "Excluindo..." : "Confirmar exclusão"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onOpenChange(false)}
+            disabled={loading || deleting}
+            className="hover: cursor-pointer"
+          >
             Cancelar
           </Button>
-          <Button type="submit" disabled={loading || !person} form="edit-person-form">
+          <Button
+            type="submit"
+            disabled={loading || deleting || !person}
+            form="edit-person-form"
+            className="hover: cursor-pointer"
+          >
             {loading ? "Salvando..." : "Salvar alterações"}
           </Button>
         </DialogFooter>

@@ -86,7 +86,7 @@ export default function HomePage() {
       <MenuBar/>
 
       <div className="w-full flex justify-end">
-        <Button onClick={() => setCreateDialogOpen(true)}>
+        <Button onClick={() => setCreateDialogOpen(true)} className="hover: cursor-pointer">
           Adicionar
           <Plus/>
         </Button>

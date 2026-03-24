@@ -3,6 +3,7 @@ using AutoMapper;
 using GerenciadorFinanceiroResidencial.Application.Features.Categories.Commands.CreateCategory;
 using GerenciadorFinanceiroResidencial.Application.Features.Categories.Queries.GetCategoriesDetails;
 using GerenciadorFinanceiroResidencial.Application.Models;
+using GerenciadorFinanceiroResidencial.Domain.Enums;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
@@ -64,15 +65,21 @@ public class CategoryController(IMapper mapper, IMediator mediator) : MainContro
     /// </summary>
     /// <param name="pageNumber">Número da página a ser buscada.</param>
     /// <param name="pageSize">Tamanho da página a ser buscada.</param>
+    /// <param name="purpose">Finaldade das categorias a serem buscadas</param>
     /// <response code="200">Retorna todas as categorias.</response>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<GetCategoriesDetailDto>>> GetAllCategories(int pageNumber = 1,
-        int pageSize = 10)
+        int pageSize = 10, CategoryType? purpose = null)
     {
         //Limita paginação
         if (pageSize > maxPageSize) pageSize = maxPageSize;
         
-        var getCategoriesDetailQuery = new GetCategoriesDetailQuery() { PageNumber = pageNumber, PageSize = pageSize };
+        var getCategoriesDetailQuery = new GetCategoriesDetailQuery()
+        {
+            PageNumber = pageNumber,
+            PageSize = pageSize,
+            Purpose = purpose
+        };
         
         var categoriesResponse = await mediator.Send(getCategoriesDetailQuery);
         

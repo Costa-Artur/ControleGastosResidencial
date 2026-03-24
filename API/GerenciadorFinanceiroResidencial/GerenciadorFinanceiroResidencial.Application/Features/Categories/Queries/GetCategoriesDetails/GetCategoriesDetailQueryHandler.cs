@@ -12,7 +12,7 @@ public class GetCategoriesDetailQueryHandler(ITransactionRepository transactionR
     {
         GetCategoriesDetailResponse getCategoriesDetailResponse = new();
         
-        var (categoriesFromDatabase, paginationMetadata) = await transactionRepository.GetAllCategoriesAsync(request.PageNumber, request.PageSize);
+        var (categoriesFromDatabase, paginationMetadata) = await transactionRepository.GetAllCategoriesAsync(request.PageNumber, request.PageSize, request.Purpose);
 
         getCategoriesDetailResponse.Categories = mapper.Map<List<GetCategoriesDetailDto>>(categoriesFromDatabase);
         getCategoriesDetailResponse.paginationMetadata = paginationMetadata;

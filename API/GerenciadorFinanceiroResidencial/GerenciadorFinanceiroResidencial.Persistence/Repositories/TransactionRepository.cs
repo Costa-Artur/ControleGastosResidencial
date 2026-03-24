@@ -114,9 +114,14 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
         return (personsSummary, totals, paginationMetadata);
     }
 
-    public async Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize)
+    public async Task<(IEnumerable<Category>, PaginationMetadata)> GetAllCategoriesAsync(int pageNumber, int pageSize, CategoryType? purpose)
     {
         var collection = context.Categories.OrderBy(c => c.Id).AsQueryable();
+        
+        if (purpose.HasValue)
+        {
+            collection = collection.Where(c => c.Purpose == purpose.Value || c.Purpose == CategoryType.Ambas);
+        }
         
         var totalItemCount = await collection.CountAsync();
         
