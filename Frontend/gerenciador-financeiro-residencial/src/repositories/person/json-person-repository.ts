@@ -56,8 +56,33 @@ export class JsonPersonRepository implements PersonRepository {
 
         return response.json() as Promise<PersonModel>;
     }
-    update(id: string, person: Omit<PersonModel, "id">): Promise<PersonModel | null> {
-        throw new Error("Method not implemented.");
+    async update(id: string, person: Omit<PersonModel, "id">): Promise<PersonModel | null> {
+        const response = await fetch(`${this.personsBaseUrl}/${id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                id,
+                name: person.name,
+                age: person.age,
+            }),
+        });
+
+        if (response.status === 404) {
+            return null;
+        }
+
+        if (!response.ok) {
+            throw new Error(`Erro ao atualizar pessoa: ${response.status}`);
+        }
+
+        // API returns 204 No Content on successful update.
+        return {
+            id,
+            name: person.name,
+            age: person.age,
+        };
     }
     delete(id: string): Promise<void> {
         throw new Error("Method not implemented.");

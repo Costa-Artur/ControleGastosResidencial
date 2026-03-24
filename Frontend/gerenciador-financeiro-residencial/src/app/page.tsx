@@ -1,15 +1,16 @@
 'use client';
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { personRepository } from "@/repositories/person/json-person-repository";
 import { PersonsTotalsModel, PersonWithTotalsModel } from "@/models/person/person-model";
 import MenuBar from "@/components/menu-bar";
 import { DataTable } from "@/components/person/data-table";
-import { personColumns } from "@/components/person/columns";
+import { getPersonColumns } from "@/components/person/columns";
 import { Item, ItemContent } from "@/components/ui/item";
 import { Button } from "@/components/ui/button";
 import { Plus } from "lucide-react";
 import { CreatePersonDialog } from "@/components/person/create-person-dialog";
+import { EditPersonDialog } from "@/components/person/edit-person-dialog";
 
 export default function HomePage() {
   const [persons, setPersons] = useState<PersonWithTotalsModel[]>([]);
@@ -25,6 +26,16 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [personToEdit, setPersonToEdit] = useState<PersonWithTotalsModel | null>(null);
+
+  const columns = useMemo(
+    () => getPersonColumns((person) => {
+      setPersonToEdit(person);
+      setEditDialogOpen(true);
+    }),
+    [],
+  );
 
   const handleGetAllPersons = async (pageNumber: number, currentPageSize: number) => {
     try {
@@ -89,9 +100,18 @@ export default function HomePage() {
         }}
       />
 
+      <EditPersonDialog
+        open={editDialogOpen}
+        onOpenChange={setEditDialogOpen}
+        person={personToEdit}
+        onUpdated={() => {
+          void handleGetAllPersons(currentPage, pageSize);
+        }}
+      />
+
       <DataTable
         data={persons}
-        columns={personColumns}
+        columns={columns}
         currentPage={currentPage}
         totalPages={totalPages}
         pageSize={pageSize}

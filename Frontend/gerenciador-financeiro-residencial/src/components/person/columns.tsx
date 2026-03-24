@@ -3,7 +3,10 @@ import { Button } from "@/components/ui/button";
 import { ColumnDef } from "@tanstack/react-table";
 import { Pencil } from "lucide-react";
 
-export const personColumns: ColumnDef<PersonWithTotalsModel>[] = [
+export function getPersonColumns(
+    onEdit: (person: PersonWithTotalsModel) => void,
+): ColumnDef<PersonWithTotalsModel>[] {
+    return [
     {
         accessorKey: "name",
         header: "Nome",
@@ -61,7 +64,7 @@ export const personColumns: ColumnDef<PersonWithTotalsModel>[] = [
     {
         id: "actions",
         header: () => <span className="sr-only">Ações</span>,
-        cell: () => {
+        cell: ({ row }) => {
             return (
                 <div className="flex justify-center">
                     <Button
@@ -69,6 +72,7 @@ export const personColumns: ColumnDef<PersonWithTotalsModel>[] = [
                         size="icon"
                         className="h-8 w-8"
                         aria-label="Editar pessoa"
+                        onClick={() => onEdit(row.original)}
                     >
                         <Pencil className="size-4" />
                     </Button>
@@ -82,3 +86,4 @@ export const personColumns: ColumnDef<PersonWithTotalsModel>[] = [
         enableHiding: false,
     }
 ]
+}

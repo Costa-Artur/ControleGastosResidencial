@@ -25,6 +25,19 @@ public class TransactionRepository(TransactionContext context) : ITransactionRep
         context.Transactions.Add(transaction);
     }
 
+    public void UpdatePerson(Person person)
+    {
+        var trackedPerson = context.Persons.Local.FirstOrDefault(p => p.Id == person.Id);
+
+        if (trackedPerson is not null)
+        {
+            context.Entry(trackedPerson).CurrentValues.SetValues(person);
+            return;
+        }
+
+        context.Persons.Update(person);
+    }
+
     public  async Task<bool> SaveChangesAsync()
     {
         return await context.SaveChangesAsync() > 0;

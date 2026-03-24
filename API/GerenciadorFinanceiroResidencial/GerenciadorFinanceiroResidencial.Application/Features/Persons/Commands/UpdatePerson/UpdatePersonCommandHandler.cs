@@ -23,13 +23,6 @@ public class UpdatePersonCommandHandler(ITransactionRepository repository, IMapp
             return response;
         }
 
-        if (!await repository.PersonExistsAsync(request.Id))
-        {
-            response.ErrorType = Error.NotFoundProblem;
-            response.Errors.Add("Person", new string[] {"Pessoa nâo encontrada"});
-            return response;
-        }
-        
         var personEntity = await repository.GetPersonByIdAsync(request.Id);
 
         if (personEntity == null)
@@ -40,6 +33,8 @@ public class UpdatePersonCommandHandler(ITransactionRepository repository, IMapp
         }
         
         mapper.Map(request, personEntity);
+        repository.UpdatePerson(personEntity);
+        await repository.SaveChangesAsync();
         return response;
     }
 }
