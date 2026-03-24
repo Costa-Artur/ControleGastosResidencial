@@ -19,9 +19,11 @@ export default function RootLayout({
 }: Readonly<RootLayoutProps>) {
   return (
     <html
-      lang="pt-BR" className={cn("font-sans", geist.variable)}
+      lang="pt-BR"
+      className={cn("font-sans", geist.variable)}
+      suppressHydrationWarning
     >
-      <body>{children}</body>
+      <body suppressHydrationWarning>{children}</body>
     </html>
   );
 }
